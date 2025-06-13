@@ -1,15 +1,21 @@
+// 使用 Node.js 自动生成唯一子目录中转页
 const fs = require('fs');
 const path = require('path');
 
-function generateId(length = 6) {
-  return [...Array(length)].map(() => Math.random().toString(36)[2]).join('');
+function generateRandomId(length = 6) {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 }
 
-const id = generateId();
-const template = fs.readFileSync('./template/index.html', 'utf8');
-const outputPath = `./redirect-pages/${id}`;
-fs.mkdirSync(outputPath, { recursive: true });
-fs.writeFileSync(path.join(outputPath, 'index.html'), template.replace(/{{RANDOM_PATH}}/g, id));
+function generatePage() {
+  const id = generateRandomId();
+  const src = path.join(__dirname, '../template/index.html');
+  const destDir = path.join(__dirname, '../redirect-pages', id);
+  const destFile = path.join(destDir, 'index.html');
 
-console.log(`✅ 成功生成中转页: redirect-pages/${id}/index.html`);
+  if (!fs.existsSync(destDir)) fs.mkdirSync(destDir);
+  fs.copyFileSync(src, destFile);
+  console.log(`生成完成：redirect-pages/${id}/index.html`);
+}
 
+generatePage();

@@ -1,0 +1,30 @@
+name: 自动生成中转页
+
+on:
+  workflow_dispatch:  # 可手动触发
+  push:
+    branches: [main]
+
+jobs:
+  generate_redirect_page:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # 必须拉取完整历史，才能提交更改
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Run generate.js script
+        working-directory: generator
+        run: node generate.js
+
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: "redirect-pages/"
+          message: "自动生成新中转页"

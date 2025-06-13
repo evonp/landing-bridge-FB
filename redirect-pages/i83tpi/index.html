@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>页面加载中...</title>
+  <link rel="stylesheet" href="../../assets/loading.css" />
+  <script src="../../config.js"></script>
+  <script>
+    function getQueryParams() {
+      const params = new URLSearchParams(window.location.search);
+      const obj = {};
+      for (const [k, v] of params.entries()) { obj[k] = v; }
+      return obj;
+    }
+    function buildRedirectUrl(baseUrl, params) {
+      const paramString = Object.entries(params).map(entry => entry[0] + '=' + encodeURIComponent(entry[1])).join('&');
+      return baseUrl + '&' + paramString;
+    }
+    function isMobileAndroid() { return /Android/i.test(navigator.userAgent); }
+    function showQR(url) {
+      const qr = document.getElementById("qrcode");
+      qr.innerHTML = '<p>请使用手机扫码访问：</p><img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(url) + '" alt="QR Code" />';
+    }
+    window.addEventListener("DOMContentLoaded", () => {
+      const params = getQueryParams();
+      const fullUrl = buildRedirectUrl(REDIRECT_BASE_URL, params);
+      if (!isMobileAndroid()) { showQR(fullUrl); return; }
+      if (typeof fbq === 'function') { fbq('init', FB_PIXEL_ID); fbq('track', 'ViewContent'); }
+      setTimeout(() => { window.location.replace(fullUrl); }, REDIRECT_DELAY);
+    });
+  </script>
+</head>
+<body>
+  <div class="loader-container">
+    <div class="loader"></div>
+    <p>跳转中，请稍候...</p>
+    <div id="qrcode" style="margin-top: 20px;"></div>
+  </div>
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1051298070546083&ev=PageView&noscript=1"/></noscript>
+</body>
+</html>
